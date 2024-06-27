@@ -1,14 +1,10 @@
 class PHP_JS {
-    constructor() {
-        this.scope = this.create_scope();
-    }
-
-    create_scope() {
+    async create_scope() {
         return {
-            execute: function (code) {
+            execute: async function (code) {
                 let output = "";
                 try {
-                    output = eval(this.transpile_php_to_js(code));
+                    output = await eval(this.transpile_php_to_js(code));
                 } catch (e) {
                     output = "Error: " + e.message;
                 }
@@ -17,10 +13,10 @@ class PHP_JS {
             transpile_php_to_js: function (phpCode) {
                 // Basic transpiler logic for demonstration purposes
                 phpCode = phpCode.replace(/\$word/g, 'var word');
-                phpCode = phpCode.replace(/file_get_contents\((.+?)\)/g, 'fetch($1).then(response => response.text())');
+                phpCode = phpCode.replace(/file_get_contents\((.+?)\)/g, 'await fetch($1).then(response => response.text())');
                 phpCode = phpCode.replace(/json_decode\((.+?)\)/g, 'JSON.parse($1)');
                 phpCode = phpCode.replace(/echo/g, 'return');
-                return phpCode;
+                return `(async () => { ${phpCode} })()`;
             }
         };
     }
